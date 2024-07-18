@@ -15,6 +15,6 @@ app.use(mongoSanitize());
 
 ///Mounting routers
 
-// app.use("/api/v1/users", userRouter);
-// app.use("/api/v1/exams", examRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/exams", examRouter);
 module.exports = app;
