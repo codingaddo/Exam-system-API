@@ -18,7 +18,7 @@ const examSchema = new mongoose.Schema(
     createdBy: {
       type: mongoose.Schema.ObjectId,
       ref: "User",
-      required: [true, "A review must belong to a user"],
+      required: [true, "An exam must belong to a user"],
     },
     questions: [
       {
@@ -27,6 +27,16 @@ const examSchema = new mongoose.Schema(
         required: [true, "At least one question is required for an exam"],
       },
     ],
+    level: {
+      type: String,
+      required: [true, "Exam level is required"],
+      enum: ["100", "200", "300", "400"],
+    },
+    program: {
+      type: String,
+      required: [true, "Program is required"],
+    },
+    duration: Date,
   },
   {
     toJSON: { virtuals: true },

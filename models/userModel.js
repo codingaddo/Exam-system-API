@@ -9,11 +9,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Full name is required"],
   },
-  // level: {
-  //   type: Number,
-  //   enum: [100, 200, 300, 400],
-  //   required: [true, "User level is required"],
-  // },
+  level: {
+    type: String,
+    enum: ["100", "200", "300", "400"],
+  },
+  program: String,
   email: {
     type: String,
     required: [true, "User email is required"],
