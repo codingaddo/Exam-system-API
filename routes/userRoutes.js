@@ -8,11 +8,17 @@ const {
   resetPassword,
 } = require("../controllers/authController");
 
+const { protect, restrictTo } = require("../controllers/authController");
+
+const { verifyUser } = require("../controllers/userController");
+
 const router = express.Router();
 router.post("/signup", signup);
 router.post("/login", login);
 router.get("/logout", logout);
 router.post("/forgot-password", forgotPassword);
 router.patch("/reset-password/:token", resetPassword);
+
+router.route("/verify/:id").patch(protect, restrictTo("admin"), verifyUser);
 
 module.exports = router;
