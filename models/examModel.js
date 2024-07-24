@@ -36,6 +36,10 @@ const examSchema = new mongoose.Schema(
       type: String,
       required: [true, "Program is required"],
     },
+    courseCode:{
+      type: String,
+      required: [true, "Course code is required"],
+    },
     duration: Date,
   },
   {
