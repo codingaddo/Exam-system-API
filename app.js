@@ -8,6 +8,13 @@ const userRouter = require("./routes/userRoutes");
 const examRouter = require("./routes/examRoute");
 const answerRouter = require("./routes/answerRoute");
 
+app.use((req, res, next) => {
+  console.log("hello from the middleware");
+  req.requesTime = new Date().toISOString();
+  // console.log(req.cookies);
+  next();
+});
+
 app.use(cors());
 app.options("*", cors());
 app.use(express.json());

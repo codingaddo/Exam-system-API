@@ -44,7 +44,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     studentId: req.body.studentId,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
-    role: req.body.role,
+    // role: req.body.role,
   });
 
   // const transporter = nodemailer.createTransport({
@@ -89,6 +89,10 @@ exports.login = catchAsync(async (req, res, next) => {
       status: "fail",
       message: "invalid email/id or password",
     });
+  }
+
+  if (!user.isVerified) {
+    return res.status(400).json({ message: "User not verified" });
   }
 
   createSendToken(user, 200, req, res);
