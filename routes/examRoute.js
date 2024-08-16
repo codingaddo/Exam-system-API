@@ -6,9 +6,11 @@ const {
   createExam,
 } = require("../controllers/examController");
 
-router.route("/create").post(protect, restrictTo("lecturer"), createExam);
+router
+  .route("/create")
+  .post(protect, restrictTo("lecturer", "admin"), createExam);
 router
   .route("/add-question/:examId")
-  .post(protect, restrictTo("lecturer"), addQuestionToExam);
+  .post(protect, restrictTo("lecturer", "admin"), addQuestionToExam);
 
 module.exports = router;

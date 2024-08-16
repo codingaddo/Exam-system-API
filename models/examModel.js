@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const questionSchema = require("../models/questionModel");
 
 const examSchema = new mongoose.Schema(
   {
@@ -20,13 +21,15 @@ const examSchema = new mongoose.Schema(
       ref: "User",
       required: [true, "An exam must belong to a user"],
     },
-    questions: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: "Question",
-        required: [true, "At least one question is required for an exam"],
-      },
-    ],
+    // questions: {
+    //   // type: mongoose.Schema.ObjectId,
+    //   type: Array,
+    //   // ref: "Question",
+    //   required: [true, "At least one question is required for an exam"],
+    // },
+
+    questions: [questionSchema],
+
     level: {
       type: String,
       required: [true, "Exam level is required"],
@@ -36,9 +39,9 @@ const examSchema = new mongoose.Schema(
       type: String,
       required: [true, "Program is required"],
     },
-    courseCode:{
+    courseCode: {
       type: String,
-      required: [true, "Course code is required"],
+      // required: [true, "Course code is required"],
     },
     duration: Date,
   },

@@ -3,7 +3,7 @@ const Question = require("../models/questionModel");
 
 exports.createExam = async (req, res) => {
   try {
-    const { title, description, date, level, program } = req.body;
+    const { title, description, date, level, program, questions } = req.body;
 
     const exam = new Exam({
       title,
@@ -11,6 +11,7 @@ exports.createExam = async (req, res) => {
       date,
       level,
       program,
+      questions,
       createdBy: req.user._id,
     });
 
