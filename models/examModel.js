@@ -21,12 +21,6 @@ const examSchema = new mongoose.Schema(
       ref: "User",
       required: [true, "An exam must belong to a user"],
     },
-    // questions: {
-    //   // type: mongoose.Schema.ObjectId,
-    //   type: Array,
-    //   // ref: "Question",
-    //   required: [true, "At least one question is required for an exam"],
-    // },
 
     questions: [questionSchema],
 

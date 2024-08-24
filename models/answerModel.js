@@ -1,38 +1,89 @@
+// const mongoose = require("mongoose");
+
+// const answerSchema = new mongoose.Schema({
+//   examId: {
+//     type: mongoose.Schema.ObjectId,
+//     ref: "Exam",
+//   },
+//   studentId: {
+//     type: mongoose.Schema.ObjectId,
+//     ref: "User",
+//   },
+//   answers: [
+//     {
+//       question: {
+//         type: mongoose.Schema.ObjectId,
+//         ref: "Question",
+//       },
+//       selectedOption: Number,
+//       score: {
+//         type: Number,
+//         default: 0,
+//       },
+//       completedAt: {
+//         type: Date,
+//         default: Date.now,
+//       },
+//     },
+//   ],
+//   totalScore: {
+//     type: Number,
+//     default: 0,
+//   },
+//   studentTotalscore: {
+//     type: Number,
+//     default: 0,
+//   },
+// });
+
+// const Answer = mongoose.model("Answer", answerSchema);
+
+// module.exports = Answer;
+
 const mongoose = require("mongoose");
 
 const answerSchema = new mongoose.Schema({
-  examId: {
+  student: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  exam: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Exam",
+    required: true,
+  },
+  examiner: {
     type: mongoose.Schema.ObjectId,
     ref: "Exam",
   },
-  studentId: {
-    type: mongoose.Schema.ObjectId,
-    ref: "User",
-  },
   answers: [
     {
-      question: {
+      questionId: {
         type: mongoose.Schema.ObjectId,
         ref: "Question",
+        required: true,
       },
-      selectedOption: Number,
-      score: {
+      selectedOption: {
         type: Number,
-        default: 0,
       },
-      completedAt: {
-        type: Date,
-        default: Date.now,
+      correct: {
+        type: Boolean,
+        required: true,
+      },
+      points: {
+        type: Number,
+        required: true,
       },
     },
   ],
   totalScore: {
     type: Number,
-    default: 0,
+    required: true,
   },
-  studentTotalscore: {
-    type: Number,
-    default: 0,
+  submittedAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 
