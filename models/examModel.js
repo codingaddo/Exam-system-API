@@ -37,7 +37,7 @@ const examSchema = new mongoose.Schema(
       type: String,
       // required: [true, "Course code is required"],
     },
-    duration: Date,
+    duration: Number,
   },
   {
     toJSON: { virtuals: true },

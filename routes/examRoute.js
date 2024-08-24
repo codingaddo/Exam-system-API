@@ -14,6 +14,4 @@ router
   .route("/add-question/:examId")
   .post(protect, restrictTo("lecturer", "admin"), addQuestionToExam);
 
-router.route("/answers/:examId/submit").post(protect, submitAnswers);
-
 module.exports = router;

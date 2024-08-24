@@ -3,16 +3,29 @@ const Question = require("../models/questionModel");
 
 exports.createExam = async (req, res) => {
   try {
-    const { title, description, date, level, program, questions } = req.body;
-
-    const exam = new Exam({
+    const {
       title,
       description,
       date,
       level,
       program,
       questions,
+      courseCode,
+      sittingDate,
+      duration,
+    } = req.body;
+
+    const exam = new Exam({
+      title,
+      description,
+      courseCode,
+      sittingDate,
+      date,
+      level,
+      program,
+      questions,
       createdBy: req.user._id,
+      duration,
     });
 
     const savedExam = await exam.save();
