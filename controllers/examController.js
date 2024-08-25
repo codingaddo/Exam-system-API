@@ -37,6 +37,53 @@ exports.createExam = async (req, res) => {
   }
 };
 
+//Get all available exams with program and level === the student
+exports.getExamForStudents = async (req, res) => {
+  try {
+    const { level, program } = req.user;
+    const exams = await Exam.find({ program, level });
+    if (!exams || exams.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No exam found for your program and level" });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        exams,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "failed",
+      error: error.message,
+    });
+  }
+};
+
+///Get exam questions
+exports.getExam = async (req, res) => {
+  try {
+    const examId = req.params.id;
+    const exam = await Exam.findById(examId).populate("questions");
+    if (!exam) {
+      return res.status(404).json({ error: "Exam not found" });
+    }
+    res.status(200).json({
+      status: "success",
+      data: {
+        exam,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "faied",
+      error: error.message,
+    });
+  }
+};
+
 // Add questions to an exam
 exports.addQuestionToExam = async (req, res) => {
   try {
