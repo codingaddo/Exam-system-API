@@ -41,7 +41,7 @@ exports.createExam = async (req, res) => {
 //Get all available exams with program and level === the student
 exports.getExamForStudents = async (req, res) => {
   try {
-    const { level, program, studentId } = req.user;
+    const { level, program, _id: studentId } = req.user;
     const exams = await Exam.find({ program, level });
     if (!exams || exams.length === 0) {
       return res
@@ -50,12 +50,17 @@ exports.getExamForStudents = async (req, res) => {
     }
 
     // Get all exams the student has already submitted
-    const submittedExams = await Answer.find({ studentId }).select("exam");
+    const submittedExams = await Answer.find({ student: studentId }).select(
+      "exam"
+    );
+
+    const submittedExamIds = new Set(
+      submittedExams.map((submitted) => submitted.exam.toString())
+    );
 
     // Filter out the submitted exams
     const availableExams = exams.filter(
-      (exam) =>
-        !submittedExams.some((submitted) => submitted.exam.equals(exam._id))
+      (exam) => !submittedExamIds.has(exam._id.toString())
     );
 
     res.status(200).json({
