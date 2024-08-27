@@ -1,5 +1,6 @@
 const Exam = require("../models/examModel");
 const Question = require("../models/questionModel");
+const Answer = require("../models/answerModel");
 
 exports.createExam = async (req, res) => {
   try {
@@ -48,10 +49,21 @@ exports.getExamForStudents = async (req, res) => {
         .json({ error: "No exam found for your program and level" });
     }
 
+    // Get all exams the student has already submitted
+    const submittedExams = await Answer.find({ student: studentId }).select(
+      "exam"
+    );
+
+    // Filter out the submitted exams
+    const availableExams = exams.filter(
+      (exam) =>
+        !submittedExams.some((submitted) => submitted.exam.equals(exam._id))
+    );
+
     res.status(200).json({
       status: "success",
       data: {
-        exams,
+        availableExams,
       },
     });
   } catch (error) {
