@@ -38,6 +38,7 @@ const examSchema = new mongoose.Schema(
       // required: [true, "Course code is required"],
     },
     duration: Number,
+    totalPoints: Number,
   },
   {
     toJSON: { virtuals: true },

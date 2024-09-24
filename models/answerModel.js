@@ -79,7 +79,10 @@ const answerSchema = new mongoose.Schema({
   ],
   totalScore: {
     type: Number,
-    required: true,
+  },
+  totalPossiblePoints: {
+    type: Number,
+    default: 0,
   },
   submittedAt: {
     type: Date,

@@ -7,28 +7,30 @@ exports.submitAnswers = async (req, res) => {
     const { examId, answers } = req.body;
     const student = req.user;
 
+    // Find the exam by ID
     const exam = await Exam.findById(examId);
-
     if (!exam) {
       return res.status(404).json({
         status: "fail",
         message: "Exam not found",
       });
     }
-    if (student.level !== exam.level || student.program !== exam.program) {
-      console.log(student.level);
-      console.log(student.program);
-      console.log(exam.program);
-      console.log(exam.level);
 
+    // Check if the student's level and program match the exam's level and program
+    if (student.level !== exam.level || student.program !== exam.program) {
       return res
         .status(403)
         .json({ error: "You are not authorized to take this exam" });
     }
-    let totalScore = 0;
+
+    // Initialize scores
+    let totalScore = 0; // Total points the student scores
+    let totalPossiblePoints = 0; // Total possible points for the exam
     const resultDetails = [];
 
+    // Iterate through each answer the student submitted
     for (const answer of answers) {
+      // Find the question in the exam
       const question = exam.questions.id(answer.questionId);
 
       if (!question) {
@@ -40,6 +42,10 @@ exports.submitAnswers = async (req, res) => {
         continue;
       }
 
+      // Calculate total possible points for the exam
+      totalPossiblePoints += question.points;
+
+      // Check if the answer is correct and assign points
       const correct = question.correctOption === answer.selectedOption;
       const points = correct ? question.points : 0;
 
@@ -50,16 +56,18 @@ exports.submitAnswers = async (req, res) => {
         points,
       });
 
+      // Add points for correct answers to total score
       totalScore += points;
     }
 
-    // Save the result to the Result model
+    // Save the result to the Answer model
     const result = await Answer.create({
       examiner: exam.createdBy,
       student,
       exam: examId,
       answers: resultDetails,
       totalScore,
+      totalPossiblePoints,
     });
 
     res.status(200).json({
@@ -70,7 +78,37 @@ exports.submitAnswers = async (req, res) => {
         student,
         examId,
         totalScore,
+        totalPossiblePoints,
         resultDetails,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: "Server error",
+      error: err.message,
+    });
+  }
+};
+
+exports.getMyResult = async (req, res) => {
+  try {
+    const studentId = req.user._id; // Assuming req.user contains the authenticated student's data
+
+    // Find all results that belong to the student
+    const results = await Answer.find({ student: studentId }).populate("exam"); // Populating exam info (optional)
+
+    // If no results are found
+    if (!results || results.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No results found for this student" });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        results,
       },
     });
   } catch (err) {

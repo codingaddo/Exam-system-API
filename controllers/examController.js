@@ -16,6 +16,11 @@ exports.createExam = async (req, res) => {
       duration,
     } = req.body;
 
+    // Calculate total points based on questions
+    const totalPoints = questions.reduce((total, question) => {
+      return total + (question.points || 0); // assuming each question has a points field
+    }, 0);
+
     const exam = new Exam({
       title,
       description,
@@ -25,6 +30,7 @@ exports.createExam = async (req, res) => {
       level,
       program,
       questions,
+      totalPoints,
       createdBy: req.user._id,
       duration,
     });
