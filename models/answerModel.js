@@ -79,6 +79,7 @@ const answerSchema = new mongoose.Schema({
   ],
   totalScore: {
     type: Number,
+    default: 0,
   },
   totalPossiblePoints: {
     type: Number,
