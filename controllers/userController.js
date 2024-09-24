@@ -1,4 +1,5 @@
 const User = require("../models/userModel");
+const nodemailer = require("nodemailer");
 
 //1) Verify user by id
 exports.verifyUser = async (req, res) => {
@@ -60,29 +61,52 @@ exports.verifySelected = async (req, res) => {
   }
 };
 
+// Create a Nodemailer transporter object
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_FROM, //  Gmail address
+    pass: process.env.EMAIL_PASS, // app-specific password
+  },
+});
+
 exports.createUser = async (req, res) => {
   try {
     const { name, email, level, role, studentId } = req.body;
 
+    // Generate a default password
     let defaultPass = "";
     let char = "ABCDEFGHIJKLMNOPKRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 8; i++) {
       defaultPass += char.charAt(Math.floor(Math.random() * char.length));
     }
 
     console.log(defaultPass);
 
+    // Create the new user in the database
     const newUser = await User.create({
       name,
       email,
       level,
       role,
       studentId,
-      isVerified: true,
+      isVerified: true, // Set to true if already verified
       password: defaultPass,
       passwordConfirm: defaultPass,
     });
 
+    // Set up the email options
+    const mailOptions = {
+      from: `Exam System <${process.env.EMAIL_FROM}>`,
+      to: email, // Receiver email (new user)
+      subject: `Welcome`,
+      text: `Hello ${name},\n\nYour account has been created successfully.\n\nUsername: ${email}\nPassword: ${defaultPass}\n\nPlease log in and change your password as soon as possible.\n\nBest regards,\nExam System`, // Plain text body
+    };
+
+    // Send email
+    await transporter.sendMail(mailOptions);
+
+    // Send the response back to the client
     res.status(201).json({
       status: "success",
       data: {
@@ -96,6 +120,43 @@ exports.createUser = async (req, res) => {
     });
   }
 };
+
+// exports.createUser = async (req, res) => {
+//   try {
+//     const { name, email, level, role, studentId } = req.body;
+
+//     let defaultPass = "";
+//     let char = "ABCDEFGHIJKLMNOPKRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+//     for (let i = 0; i < 4; i++) {
+//       defaultPass += char.charAt(Math.floor(Math.random() * char.length));
+//     }
+
+//     console.log(defaultPass);
+
+//     const newUser = await User.create({
+//       name,
+//       email,
+//       level,
+//       role,
+//       studentId,
+//       isVerified: true,
+//       password: defaultPass,
+//       passwordConfirm: defaultPass,
+//     });
+
+//     res.status(201).json({
+//       status: "success",
+//       data: {
+//         user: newUser,
+//       },
+//     });
+//   } catch (err) {
+//     res.status(400).json({
+//       status: "fail",
+//       message: err.message,
+//     });
+//   }
+// };
 
 exports.getStudents = async (req, res) => {
   console.log("hello from the get agents function 🔥");

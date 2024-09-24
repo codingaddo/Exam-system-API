@@ -47,22 +47,22 @@ exports.signup = catchAsync(async (req, res, next) => {
     // role: req.body.role,
   });
 
-  // const transporter = nodemailer.createTransport({
-  //   service: "gmail",
-  //   auth: {
-  //     user: process.env.EMAIL_FROM,
-  //     pass: process.env.EMAIL_PASS,
-  //   },
-  // });
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_FROM,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
 
-  // const email = transporter.sendMail({
-  //   from: `Emergency Reporting System <${process.env.EMAIL_FROM}>`,
-  //   to: newUser.email,
-  //   subject: "Welcome Message",
-  //   text: "Hello world",
-  //   html: "<b>Hello World</b>",
-  // });
-  // console.log("Email Sent");
+  const email = transporter.sendMail({
+    from: `Exam System <${process.env.EMAIL_FROM}>`,
+    to: newUser.email,
+    subject: "Hello, Welcome",
+    text: "You exam account is successfully registered, contact your admin for account verification",
+    html: "<b>You exam account is successfully registered, contact your admin for account verification</b>",
+  });
+  console.log("Email Sent");
 
   createSendToken(newUser, 201, req, res);
 
@@ -129,7 +129,7 @@ exports.protect = catchAsync(async (req, res, next) => {
     });
   }
 
-  //Verufy Token
+  //Verify Token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   //   console.log(decoded);
 
@@ -191,13 +191,36 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       },
     });
 
-    //   const email = await transporter.sendMail({
-    //     from: `Emergency Reporting System <${process.env.EMAIL_FROM}>`,
-    //     to: user.email,
-    //     subject: "Password Reset Toke",
-    //     text: `Your password reset token, click on this👉 ${resetUrl} link to reset  your password,(valid for 10mins)`,
-    //     html: `<p>Your password reset token, click on this👉 <a>${resetUrl}</a> link to reset  your password,(valid for 10mins)</p>`,
-    //   });
+    const email = await transporter.sendMail({
+      from: `Exam System <${process.env.EMAIL_FROM}>`,
+      to: user.email,
+      subject: "Password Reset Token",
+      text: `Your password reset token, click on this👉 ${resetUrl} link to reset  your password,(valid for 10mins)`,
+      html: `
+    <p>Your password reset token is ready. Please click on the link below to reset your password:</p>
+    <a href="${resetUrl}" target="_blank">${resetUrl}</a>
+    <br /><br />
+    <p>Or, click the button below to reset your password:</p>
+    <a href="${resetUrl}" target="_blank" 
+       style="
+         background-color: #007bff;
+         color: white;
+         padding: 10px 20px;
+         text-decoration: none;
+         border-radius: 5px;
+         display: inline-block;
+       "
+    >
+      Reset Password
+    </a>
+    <br /><br />
+    <p>This link will be valid for 10 minutes.</p>
+    <br /><br />
+    <h1>Ignore this email if you did not request for password reset</h1>
+
+
+  `,
+    });
     console.log("Password reset token Sent");
 
     res.status(200).json({
