@@ -1,61 +1,54 @@
-const { Dropbox } = require("dropbox");
 const fs = require("fs");
+const path = require("path");
 const Video = require("../models/videoModel");
-const fetch = require("isomorphic-fetch");
-
-// Initialize Dropbox
-const dbx = new Dropbox({
-  accessToken: process.env.DROPBOX_ACCESS_TOKEN,
-  fetch: fetch,
-});
 
 exports.uploadVideoChunk = async (req, res) => {
   try {
-    const { examId, videoType } = req.body; // "screen" or "camera"
-    const student = req.user; // Getting the user submitting the video
-    const chunk = req.file; // Assuming video upload is handled as a Buffer
+    const { videoType } = req.body;
+    const student = req.user;
+    const chunk = req.file;
 
-    let videoRecord = await Video.findOne({ student, exam: examId });
+    if (!chunk) {
+      return res.status(400).json({ message: "No video file uploaded" });
+    }
+
+    let videoRecord = await Video.findOne({ student });
     if (!videoRecord) {
-      videoRecord = new Video({ student, exam: examId });
+      videoRecord = new Video({ student });
     }
 
-    // Temporary local path for the video chunk
-    const tempFilePath = `./uploads/${chunk.originalname}`;
+    // Define the local directory for saving video chunks
+    const uploadDir = path.join(__dirname, "../uploads/videos");
 
-    // Write the chunk to a temporary file
-    fs.writeFileSync(tempFilePath, chunk.buffer);
+    // Ensure the uploads directory exists, create it if it doesn't
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
 
-    // Upload the file chunk to Dropbox
-    const dropboxPath = `/exam_videos/${videoType}/${
-      student._id
-    }_${examId}_${Date.now()}.mp4`;
+    // Define the video file name and path
+    const videoFileName = `${student._id}_${Date.now()}.mp4`;
+    const videoFilePath = path.join(uploadDir, videoFileName);
 
-    const response = await dbx.filesUpload({
-      path: dropboxPath,
-      contents: fs.readFileSync(tempFilePath), // Read video chunk from local storage
-    });
+    // Write the chunk to the server storage
+    fs.writeFileSync(videoFilePath, chunk.buffer);
 
-    // Get the temporary link for accessing the file from Dropbox
-    const tempLink = await dbx.filesGetTemporaryLink({
-      path: response.path_display,
-    });
+    // Save the file path or link to the video record
+    const localLink = `/uploads/videos/${videoFileName}`;
 
-    // Save the Dropbox link in the database
     if (videoType === "screen") {
-      videoRecord.screenVideoLinks.push(tempLink.link);
+      videoRecord.screenVideoLinks.push(localLink);
     } else if (videoType === "camera") {
-      videoRecord.cameraVideoLinks.push(tempLink.link);
+      videoRecord.cameraVideoLinks.push(localLink);
     }
 
-    // Clean up: Delete the temporary file after uploading
-    fs.unlinkSync(tempFilePath);
-
+    // Save the video record to the database
     await videoRecord.save();
+
     res.status(200).json({
-      message: "Video chunk uploaded and stored in Dropbox successfully",
+      message: "Video chunk uploaded and stored on server successfully",
     });
   } catch (err) {
+    console.error("Error uploading video chunk:", err);
     res.status(500).json({
       message: "Failed to upload video chunk",
       error: err.message,
