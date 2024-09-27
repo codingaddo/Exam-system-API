@@ -7,6 +7,7 @@ const cors = require("cors");
 const userRouter = require("./routes/userRoutes");
 const examRouter = require("./routes/examRoute");
 const answerRouter = require("./routes/answerRoute");
+const videoRouter = require("./routes/videoRoute");
 
 app.use((req, res, next) => {
   console.log("hello from the middleware");
@@ -26,5 +27,6 @@ app.use(mongoSanitize());
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/exams", examRouter);
 app.use("/api/v1/answers", answerRouter);
+app.use("/api/v1/video", videoRouter);
 
 module.exports = app;
