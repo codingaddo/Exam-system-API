@@ -120,56 +120,31 @@ exports.getMyResult = async (req, res) => {
   }
 };
 
-// exports.submitAnswers = async (req, res) => {
-//   try {
-//     const { answers } = req.body;
-//     const { examId } = req.params;
-//     const studentId = req.user._id;
-//     const exam = await Exam.findById(examId).populate("questions");
-//     if (!exam) {
-//       return res.status(404).json({
-//         message: "Exam not found",
-//       });
-//     }
+exports.getResults = async (req, res) => {
+  try {
+    const lecturer = req.user._id; // Assuming req.user contains the authenticated student's data
 
-//     const student = req.user;
-//     // Check if student's level and program match the exam's level and program
-//     if (student.level !== exam.level || student.program !== exam.program) {
-//       return res
-//         .status(403)
-//         .json({ error: "You are not authorized to take this exam" });
-//     }
+    // Find all results that belong to the student
+    const results = await Answer.find({ lecturer }).populate("student"); // Populating student info (optional)
 
-//     //Calculate score
-//     let score = 0;
-//     let totalScore = 0;
-//     let studentTotalscore = 0;
-//     for (const answer of answers) {
-//       const question = await Question.findById(answer.question);
-//       if (question.correctOption === answer.selectedOption) {
-//         score += question.points;
-//         answer.score = question.points;
-//       }
-//       totalScore += question.points;
-//     }
-//     // Save answers and score to database
-//     const newAnswer = new Answer({
-//       examId,
-//       studentId,
-//       answers,
-//       studentTotalscore: score,
-//       totalScore,
-//     });
-//     await newAnswer.save();
-//     res.status(200).json({
-//       message: "Answers submitted successfully",
-//       studentTotalscore: score,
-//       totalScore,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       error: "Failed to submit answers",
-//       details: error.message,
-//     });
-//   }
-// };
+    // If no results are found
+    if (!results || results.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No results found for this student" });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        results,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "error",
+      message: "Server error",
+      error: err.message,
+    });
+  }
+};
