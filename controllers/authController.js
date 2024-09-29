@@ -179,9 +179,10 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   try {
-    const resetUrl = `${req.protocol}://${req.get(
-      "host"
-    )}/api/v1/users/reset-password/${resetToken}`;
+    // const resetUrl = `${req.protocol}://${req.get(
+    //   "host"
+    // )}/api/v1/users/reset-password/${resetToken}`;
+    const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
 
     const transporter = nodemailer.createTransport({
       service: "gmail",

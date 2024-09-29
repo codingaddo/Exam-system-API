@@ -122,16 +122,16 @@ exports.getMyResult = async (req, res) => {
 
 exports.getResults = async (req, res) => {
   try {
-    const lecturer = req.user._id; // Assuming req.user contains the authenticated student's data
+    const lecturer = req.user._id;
 
-    // Find all results that belong to the student
-    const results = await Answer.find({ lecturer }).populate("student"); // Populating student info (optional)
+    // Find all results whose exam belong to the lecturer
+    const results = await Answer.find({ examiner: lecturer }).populate(
+      "student"
+    ); // Populating student info (optional)
 
     // If no results are found
     if (!results || results.length === 0) {
-      return res
-        .status(404)
-        .json({ error: "No results found for this student" });
+      return res.status(404).json({ error: "No results found" });
     }
 
     res.status(200).json({
